@@ -66,9 +66,9 @@ void test_Led_dont_affect_the_rest(void)
 //! @test Consultar el estado de un led prendido
 void test_Read_state_led_on(void)
 {
-   TEST_ASSERT_FALSE(DriverLed_ReadStateOn(8));
-   DriverLed_TurnOn(8);
-   TEST_ASSERT_TRUE(DriverLed_ReadStateOn(8));
+   TEST_ASSERT_FALSE(DriverLed_ReadStateOn(12));
+   DriverLed_TurnOn(12);
+   TEST_ASSERT_TRUE(DriverLed_ReadStateOn(12));
 }
 
 //! @test Consultar el estado de un led apagado  

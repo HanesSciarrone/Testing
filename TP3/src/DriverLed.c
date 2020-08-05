@@ -21,21 +21,37 @@ static uint16_t ConvertLedNumberToBit(uint16_t numberled)
 	return (LEDS_BIT_ON << (numberled - LEDS_TO_BITS_OFFSET));
 }
 
+/**
+  * @brief Assign values of led on address leds
+  */
 static void updateHardware(void)
 {
 	*ledAddress = ledsImage;
 }
 
-static uint8_t IsLedOutOfBound(uint16_t numberled)
+
+/**
+  * @brief Evaluate if number of led is out of bound
+  *
+  * \return Reeturn True or false.
+  */
+static bool IsLedOutOfBound(uint16_t numberled)
 {
 	return (numberled <= FIRST_LED || numberled > LAST_LED);
 }
 
+
+/**
+  * @brief Set led state
+  */
 void SetLedImageBit(uint16_t numberled)
 {
 	ledsImage |= ConvertLedNumberToBit(numberled);
 }
 
+/**
+  * @brief reset led state
+  */
 void ClearLedImageBit(uint16_t numberled)
 {
 	ledsImage &= ~ConvertLedNumberToBit(numberled);
@@ -82,17 +98,17 @@ void DriverLed_TurnOffAll(void)
 	updateHardware();
 }
 
-uint8_t DriverLed_ReadStateOn(uint16_t numberled)
+bool DriverLed_ReadStateOn(uint16_t numberled)
 {
 	if(IsLedOutOfBound(numberled))
 	{
 		return false;
 	}
 
-	return ledsImage & (ConvertLedNumberToBit(numberled));
+	return ((ledsImage & (ConvertLedNumberToBit(numberled))) != 0);
 }
 
-uint8_t DriverLed_ReadStateOff(uint16_t numberled)
+bool DriverLed_ReadStateOff(uint16_t numberled)
 {
 	return !DriverLed_ReadStateOn(numberled);
 }
