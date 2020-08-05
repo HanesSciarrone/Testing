@@ -20,8 +20,8 @@ void test_All_Led_Initialice_Off(void)
 //! @test Encender un led
 void test_TurnOn_Led(void)
 {
-   DriverLed_TurnOn(1);
-   TEST_ASSERT_EQUAL_HEX16(0x0001, virtual_led);
+   DriverLed_TurnOn(12);
+   TEST_ASSERT_EQUAL_HEX16(0x0800, virtual_led);
 }
 
 //! @test Prender y apagar un led
@@ -66,19 +66,17 @@ void test_Led_dont_affect_the_rest(void)
 //! @test Consultar el estado de un led prendido
 void test_Read_state_led_on(void)
 {
-   virtual_led = 0xFFFF;
-
+   TEST_ASSERT_FALSE(DriverLed_ReadStateOn(8));
    DriverLed_TurnOn(8);
-   TEST_ASSERT_EQUAL_HEX16(0x0080, virtual_led);
+   TEST_ASSERT_TRUE(DriverLed_ReadStateOn(8));
 }
 
 //! @test Consultar el estado de un led apagado  
 void test_Read_state_led_off(void)
 {
-   virtual_led = 0xFFFF;
-
-   DriverLed_TurnOff(8);
-   TEST_ASSERT_EQUAL_HEX16(0x0000, virtual_led);
+   TEST_ASSERT_TRUE(DriverLed_ReadStateOff(5));
+   DriverLed_TurnOn(5);
+   TEST_ASSERT_FALSE(DriverLed_ReadStateOff(5));
 }
 
 //! @test Parámetros en valores de borde

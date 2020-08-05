@@ -8,14 +8,14 @@ static uint16_t ledsImage;
 #define LEDS_BIT_ON			1	
 #define LEDS_TO_BITS_OFFSET	1	
 #define FIRST_LED			0
-#define LAST_LED			16		
+#define LAST_LED			16	
 
-typedef enum
-{
-	false,
-	true
-}BOOL;
+#define true	1
+#define false	0	
 
+/**
+  * @brief Convert number of led to bit of represent what is the led inside of mask
+  */
 static uint16_t ConvertLedNumberToBit(uint16_t numberled)
 {
 	return (LEDS_BIT_ON << (numberled - LEDS_TO_BITS_OFFSET));
@@ -26,9 +26,9 @@ static void updateHardware(void)
 	*ledAddress = ledsImage;
 }
 
-static BOOL IsLedOutOfBound(uint16_t numberled)
+static uint8_t IsLedOutOfBound(uint16_t numberled)
 {
-	return numberled <= FIRST_LED || numberled > LAST_LED;
+	return (numberled <= FIRST_LED || numberled > LAST_LED);
 }
 
 void SetLedImageBit(uint16_t numberled)
@@ -80,4 +80,19 @@ void DriverLed_TurnOffAll(void)
 {
 	ledsImage = ALL_LED_OFF;
 	updateHardware();
+}
+
+uint8_t DriverLed_ReadStateOn(uint16_t numberled)
+{
+	if(IsLedOutOfBound(numberled))
+	{
+		return false;
+	}
+
+	return ledsImage & (ConvertLedNumberToBit(numberled));
+}
+
+uint8_t DriverLed_ReadStateOff(uint16_t numberled)
+{
+	return !DriverLed_ReadStateOn(numberled);
 }
