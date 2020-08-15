@@ -1,9 +1,4 @@
 /*
- * Configurar el ESP82266 para no realice ecos de los comandos.
- * Configurar el ESP82266 para comportarse como cliente.
- * Configurar el ESP8266 para que solo soporte 1 conexión
- * El ESP8266 debe conectarse a la red Wi-fi y a un servidor.
- * El ESP8266 debe enviar mensajes al servidor.
  * El ESP8266 debe recibir las respuestas del servicio.
  * El ESP8266 debe realizar un close del cliente una vez terminada la operación
  */
@@ -13,33 +8,33 @@
 #include <stdio.h>
 #include <string.h>
 
-uint8_t comandoEsperado[64];
-uint8_t respuesta[64];
-uint8_t resultSend = ESP8266_OK;
-uint32_t respondidos;
+/* -------------------- Global variable -------------------- */
+uint32_t respondidos;	// Used to accumulate size of byte read
 
-typedef struct transaccion_s
+/** \struct Structure used to simulate message send/received */
+typedef struct transaction_s
 {
-	uint8_t *commando;
-	uint8_t resultado;
-	uint8_t *respuesta;
-}transaccion_t;
+	uint8_t *command;	/*< Command send to ESP8266 */
+	uint8_t result;  /*< Resulted of operation sent */
+	uint8_t *response; /*< Response received from ESP8266 */
+}transaction_t;
 
-transaccion_t *transaccion;
-int actual = 0; 
-int transaccionesTotales = 1;
+
+transaction_t *transactions;	/// Vector of message send and received
+int actual = 0; 				/// Operation actual if I am going to sent more one
+int totalTransaction = 1;		/// Total of operation that I do
 
 enum
 {
 	STATE_TRANSMMIT,
 	STATE_RECEIVE,
-}state = STATE_TRANSMMIT;
+}state;
+
 
 /**
- * @brief Function used to simulate send function on
- * UART and process won't be success.
+ * @brief Function used to simulate send function on  UART
  * 
- * @param[in]   data Message to sent of modelue ESP8266
+ * @param[in]  data    Message to sent of modelue ESP8266
  * @param[in]  lenghth Size of message.
  *
  * \return Return 0 on success, 1 otherwise. 
@@ -47,87 +42,119 @@ enum
 int8_t MockSend(const uint8_t *data, uint32_t length)
 {
 	char mensaje[64];
-	if ( actual < transaccionesTotales && state == STATE_TRANSMMIT)
+
+	if ( actual < totalTransaction && state == STATE_TRANSMMIT)
 	{
 		sprintf(mensaje, "Transaccion %d", actual);
-		printf("%s\r\n", transaccion[actual].commando);
-		TEST_ASSERT_EQUAL_MEMORY_MESSAGE(transaccion[actual].commando, data, length, mensaje);
+		printf("%s\r\n", transactions[actual].command);
+		TEST_ASSERT_EQUAL_MEMORY_MESSAGE(transactions[actual].command, data, length, mensaje);
 
 		respondidos = 0;
 		state = STATE_RECEIVE;
-		return transaccion[actual].resultado;
+		return transactions[actual].result;
 	}
 }
 
 /**
- * @brief Function used to simulate send function on
- * UART and process will be success.
+ * @brief Function used to simulate receive function on UART
  * 
- * @param[in]   data Message to sent of modelue ESP8266
- * @param[in]  lenghth Size of message.
+ * @param[in]  data    Buffer where Iĺl save messsage received from ESP8266
+ * @param[in]  lenghth Size of buffer.
  *
- * \return Return 0 on success, -1 otherwise.
+ * \return Return total of length read or 0 otherwise.
  */
 int32_t MockReceive(uint8_t *data, uint32_t length)
 {
-	int32_t largo = strlen((char *)transaccion[actual].respuesta);
+	int32_t largo = strlen((char *)transactions[actual].response);
 
 	if (state != STATE_RECEIVE)
 	{
 		return 0;
 	}
 
-	if ( respondidos < largo)
+	if (respondidos < largo)
 	{
-		memcpy(data, &transaccion[actual].respuesta[respondidos], length);
+		memcpy(data, &transactions[actual].response[respondidos], length);
 		respondidos += length;
+
+		if ( respondidos == largo )
+		{
+			actual++;
+			state = STATE_TRANSMMIT;
+		}
 		return length;
 	}
-	else
-	{
-		actual++;
-		state = STATE_TRANSMMIT;
-		return 0;
-	}	
 }
 
+//** Variable used to inject mock function of sent and receive into of driver */
 const ESP8266_CommInterface_s interface = {
 	.send = MockSend, 
 	.recv = MockReceive 
 };
 
-// /**
-//  * @brief Function used to simulate receive function on
-//  * UART and process won't be success.
-//  * 
-//  * @param[in,out]   msg Message received of modelue ESP8266
-//  * @param[in]      lenghth Size of buffer where message will storage.
-//  *
-//  * \return Length of data received
-//  */
-// int32_t RecvMessageFail(uint8_t *msg, uint32_t length)
-// {
-// 	strncpy((char *msg), "ERROR\r\n", 7);
+/* -------------------- Private function ------------------- */
 
-// 	return 7;
-// }
+/** @brief Function to initialize configuration of Wifi */
+static uint8_t WifiModule_Init(void);
+/** @brief Function to connect module of Wifi network and server */
+static uint8_t WifiModule_Connect(void);
 
-// /**
-//  * @brief Function used to simulate receive function on
-//  * UART and process will be success.
-//  * 
-//  * @param[in,out]   msg Message to sent of modelue ESP8266
-//  * @param[in]      lenghth Size of buffer where message will storage.
-//  *
-//  * \return Length of data received
-//  */
-// int32_t RecvMessageOk(uint8_t *msg, uint32_t length)
-// {
-// 	strncpy((char *msg), "OK\r\n", 4);
 
-// 	return 4;
-// }
 
+static uint8_t WifiModule_Init(void)
+{
+	// Configure module for avoid echo
+	if ( ESP8266_SetEcho(0) != ESP8266_OK)
+	{
+		return 0;
+	}
+
+	// Configure module as Station Mode
+	if ( ESP8266_SetModeWIFI((uint8_t *)"1") != ESP8266_OK)
+	{
+		return 0;
+	}
+
+	// Configure module as Station Mode
+	if ( ESP8266_SetMultipleConnection((uint8_t *)"0") != ESP8266_OK)
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+static uint8_t WifiModule_Connect(void)
+{
+	ESP8266_NetworkParameters_s network;
+	ESP8266_ServerParameters_s server;
+
+	// Connection parameters network
+	network.ssid = "Name network";
+	network.password = "Password network";
+
+	// Server parameters
+	server.protocol = "TCP";
+	server.host = "mqtt.eclipse.org";
+	server.port = 1883;
+
+
+	if ( ESP8266_ConnectionNetwork(&network) != ESP8266_OK )
+	{
+		return 0;
+	}
+
+	if (ESP8266_ConnectionServer(&server) != ESP8266_OK)
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+
+
+/* ------------------- Function ceedling ------------------- */
 
 void setUp(void)
 {
@@ -137,22 +164,58 @@ void setUp(void)
 	ESP8266_CommInterface_Init(&interface);
 }
 
-// void test_Config_Echo(void)
-// {
-// 	strcpy(comandoEsperado,"ATE0\r\n");
-// 	strcpy(respuesta, "OK\r\n");
-
-// 	TEST_ASSERT_EQUAL(ESP8266_OK, ESP8266_SetEcho(0));
-// }
-
-void test_Config_Echo(void)
+/** @brief Unit test of:
+ *
+ * Configure ESP8266 to don't echo.
+ * Configure ESP8266 that it will behavior client.
+ * Configure ESP8266 to soport only one connection
+ */
+void test_Config_Init(void)
 {
-	transaccion_t secuencia[] =	{
-		{.commando = "ATE0\r\n", .resultado = 0, .respuesta = "OK\r\n"}
+	transaction_t secuencia[] =	{
+		{.command = "ATE0\r\n", .result = 0, .response = "OK\r\n"},
+		{.command = "AT+CWMODE=1\r\n", .result = 0, .response = "OK\r\n"},
+		{.command = "AT+CIPMUX=0\r\n", .result = 0, .response = "OK\r\n"}
 	};
 
-	transaccion = secuencia;
-	transaccionesTotales = 1;
+	transactions = secuencia;
+	totalTransaction = 3;
 
-	TEST_ASSERT_EQUAL(ESP8266_OK, ESP8266_SetEcho(0));
+	TEST_ASSERT_EQUAL(1, WifiModule_Init());
+}
+
+/** @brief Unit test of:
+ *
+ * Conection to Wi-Fi
+ * Connection with server
+ */
+void test_ConnectionWifi(void)
+{
+	transaction_t sequence[] = {
+		{.command = "AT+CWJAP_CUR=\"Name network\",\"Password network\"\r\n", .result = 0, .response = "WIFI CONNECTED\r\n"},
+		{.command = "AT+CIPSTART=\"TCP\",\"mqtt.eclipse.org\",1883\r\n", .result = 0, .response = "OK\r\n"}
+	} ;
+
+	transactions = sequence;
+	totalTransaction = 2;
+
+	TEST_ASSERT_EQUAL(1, WifiModule_Connect());
+}
+
+/**
+  * @brief Unit test of:
+  *
+  *  Sent message to server. 
+ */
+void test_SendMessageServer(void)
+{
+	transaction_t sequence[] = {
+		{.command = "AT+CIPSEND=26\r\n", .result = 0, .response = "OK\r\n>"},
+		{.command = "Probe ceedling with driver", .result = 0, .response = "SEND OK\r\n"}
+	};
+
+	transactions = sequence;
+	totalTransaction = 2;	
+
+	TEST_ASSERT_EQUAL(ESP8266_OK, ESP8266_SentData("Probe ceedling with driver", 26));	
 }

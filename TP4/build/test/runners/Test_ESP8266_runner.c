@@ -10,7 +10,9 @@ char* GlobalOrderError;
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
 extern void tearDown(void);
-extern void test_Config_Echo(void);
+extern void test_Config_Init(void);
+extern void test_ConnectionWifi(void);
+extern void test_SendMessageServer(void);
 
 
 /*=======Mock Management=====*/
@@ -78,7 +80,9 @@ static void run_test(UnityTestFunction func, const char* name, int line_num)
 int main(void)
 {
   UnityBegin("Test_ESP8266.c");
-  run_test(test_Config_Echo, "test_Config_Echo", 139);
+  run_test(test_Config_Init, "test_Config_Init", 173);
+  run_test(test_ConnectionWifi, "test_ConnectionWifi", 192);
+  run_test(test_SendMessageServer, "test_SendMessageServer", 210);
 
   return UnityEnd();
 }

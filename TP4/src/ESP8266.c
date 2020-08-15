@@ -214,10 +214,10 @@ ESP8266_StatusTypeDef_t ESP8266_SetEcho(const uint8_t mode)
 
 ESP8266_StatusTypeDef_t ESP8266_SetModeWIFI(uint8_t *mode)
 {
-	strncpy((char *)bufferRx, "\0", MAX_BUFFER_SIZE);
-	strncpy((char *)bufferRx, "AT+CWMODE=", 10);
-	strcat((char *)bufferRx, (char *)mode);
-	strcat((char *)bufferRx, "\r\n");
+	strncpy((char *)bufferCmd, "\0", MAX_BUFFER_SIZE);
+	strncpy((char *)bufferCmd, "AT+CWMODE=", 10);
+	strcat((char *)bufferCmd, (char *)mode);
+	strcat((char *)bufferCmd, "\r\n");
 
 	return ESP8266_SendCommand(13, (const uint8_t *)AT_OK);
 }

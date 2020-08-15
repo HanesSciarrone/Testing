@@ -3,16 +3,37 @@
   :path: test
   :file: Test_ESP8266.c
 :successes:
-- :test: test_Config_Echo
-  :line: 139
+- :test: test_Config_Init
+  :line: 173
+  :message: ''
+  :unity_test_time: 0
+- :test: test_ConnectionWifi
+  :line: 192
+  :message: ''
+  :unity_test_time: 0
+- :test: test_SendMessageServer
+  :line: 210
   :message: ''
   :unity_test_time: 0
 :failures: []
 :ignores: []
 :counts:
-  :total: 1
-  :passed: 1
+  :total: 3
+  :passed: 3
   :failed: 0
   :ignored: 0
-:stdout: []
-:time: 0.04599641800086829
+:stdout:
+- ATE0
+- ''
+- AT+CWMODE=1
+- ''
+- AT+CIPMUX=0
+- ''
+- AT+CWJAP_CUR="Name network","Password network"
+- ''
+- AT+CIPSTART="TCP","mqtt.eclipse.org",1883
+- ''
+- AT+CIPSEND=26
+- ''
+- Probe ceedling with driver
+:time: 0.313539357000991
