@@ -17,9 +17,11 @@
 
 
 
+uint32_t rxLength = 0;
 
+uint8_t rxData[50];
 
-uint32_t respondidos;
+uint32_t respondidos = 0;
 
 
 
@@ -75,7 +77,7 @@ int8_t MockSend(const uint8_t *data, uint32_t length)
 
   printf("%s\r\n", transactions[actual].command);
 
-  UnityAssertEqualMemory(( const void*)((transactions[actual].command)), ( const void*)((data)), (UNITY_UINT32)((length)), 1, ((mensaje)), (UNITY_UINT)(50), UNITY_ARRAY_TO_ARRAY);
+  UnityAssertEqualMemory(( const void*)((transactions[actual].command)), ( const void*)((data)), (UNITY_UINT32)((length)), 1, ((mensaje)), (UNITY_UINT)(51), UNITY_ARRAY_TO_ARRAY);
 
 
 
@@ -128,6 +130,14 @@ int32_t MockReceive(uint8_t *data, uint32_t length)
   }
 
   return length;
+
+ }
+
+ else
+
+ {
+
+  return 0;
 
  }
 
@@ -329,7 +339,7 @@ void test_Config_Init(void)
 
 ((void *)0)
 
-), (UNITY_UINT)(184), UNITY_DISPLAY_STYLE_INT);
+), (UNITY_UINT)(189), UNITY_DISPLAY_STYLE_INT);
 
 }
 
@@ -369,7 +379,7 @@ void test_ConnectionWifi(void)
 
 ((void *)0)
 
-), (UNITY_UINT)(202), UNITY_DISPLAY_STYLE_INT);
+), (UNITY_UINT)(207), UNITY_DISPLAY_STYLE_INT);
 
 }
 
@@ -409,6 +419,58 @@ void test_SendMessageServer(void)
 
 ((void *)0)
 
-), (UNITY_UINT)(220), UNITY_DISPLAY_STYLE_INT);
+), (UNITY_UINT)(225), UNITY_DISPLAY_STYLE_INT);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void test_ReceiveMessageServer(void)
+
+{
+
+ transaction_t sequence[] = {
+
+  {.command = " ", .result = 0, .response = "+IPD,26:Probe of reception message"}
+
+ };
+
+
+
+ transactions = sequence;
+
+ totalTransaction = 1;
+
+ interface.send(" ", 1);
+
+
+
+ UnityAssertEqualNumber((UNITY_INT)((ESP8266_OK)), (UNITY_INT)((ESP8266_ReceiveData(rxData, &rxLength))), (
+
+((void *)0)
+
+), (UNITY_UINT)(243), UNITY_DISPLAY_STYLE_INT);
+
+ UnityAssertEqualString((const char*)(("Probe of reception message")), (const char*)((rxData)), (
+
+((void *)0)
+
+), (UNITY_UINT)(244));
+
+ UnityAssertEqualNumber((UNITY_INT)(UNITY_UINT32)((26)), (UNITY_INT)(UNITY_UINT32)((rxLength)), (
+
+((void *)0)
+
+), (UNITY_UINT)(245), UNITY_DISPLAY_STYLE_UINT32);
 
 }

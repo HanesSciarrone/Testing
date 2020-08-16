@@ -1,5 +1,4 @@
 /*
- * El ESP8266 debe recibir las respuestas del servicio.
  * El ESP8266 debe realizar un close del cliente una vez terminada la operación
  */
 
@@ -9,7 +8,9 @@
 #include <string.h>
 
 /* -------------------- Global variable -------------------- */
-uint32_t respondidos;	// Used to accumulate size of byte read
+uint32_t rxLength = 0;
+uint8_t rxData[50];
+uint32_t respondidos = 0;	// Used to accumulate size of byte read
 
 /** \struct Structure used to simulate message send/received */
 typedef struct transaction_s
@@ -83,6 +84,10 @@ int32_t MockReceive(uint8_t *data, uint32_t length)
 			state = STATE_TRANSMMIT;
 		}
 		return length;
+	}
+	else
+	{
+		return 0;
 	}
 }
 
@@ -218,4 +223,24 @@ void test_SendMessageServer(void)
 	totalTransaction = 2;	
 
 	TEST_ASSERT_EQUAL(ESP8266_OK, ESP8266_SentData("Probe ceedling with driver", 26));	
+}
+
+/**
+ * @brief Unit test of
+ *
+ * Receive response from server
+ */
+void test_ReceiveMessageServer(void)
+{
+	transaction_t sequence[] = {
+		{.command = " ", .result = 0, .response = "+IPD,26:Probe of reception message"}
+	};
+
+	transactions = sequence;
+	totalTransaction = 1;
+	interface.send(" ", 1);
+	
+	TEST_ASSERT_EQUAL(ESP8266_OK, ESP8266_ReceiveData(rxData, &rxLength));
+	TEST_ASSERT_EQUAL_STRING("Probe of reception message", rxData);
+	TEST_ASSERT_EQUAL_UINT32(26, rxLength);
 }
