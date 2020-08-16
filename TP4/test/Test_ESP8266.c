@@ -1,7 +1,3 @@
-/*
- * El ESP8266 debe realizar un close del cliente una vez terminada la operación
- */
-
 #include "unity.h"
 #include "ESP8266.h"
 #include <stdio.h>
@@ -194,7 +190,7 @@ void test_Config_Init(void)
  * Conection to Wi-Fi
  * Connection with server
  */
-void test_ConnectionWifi(void)
+void test_Connection_Wifi_and_server(void)
 {
 	transaction_t sequence[] = {
 		{.command = "AT+CWJAP_CUR=\"Name network\",\"Password network\"\r\n", .result = 0, .response = "WIFI CONNECTED\r\n"},
@@ -212,7 +208,7 @@ void test_ConnectionWifi(void)
   *
   *  Sent message to server. 
  */
-void test_SendMessageServer(void)
+void test_Send_message_to_server(void)
 {
 	transaction_t sequence[] = {
 		{.command = "AT+CIPSEND=26\r\n", .result = 0, .response = "OK\r\n>"},
@@ -230,7 +226,7 @@ void test_SendMessageServer(void)
  *
  * Receive response from server
  */
-void test_ReceiveMessageServer(void)
+void test_Receive_message_from_server(void)
 {
 	transaction_t sequence[] = {
 		{.command = " ", .result = 0, .response = "+IPD,26:Probe of reception message"}
@@ -244,3 +240,21 @@ void test_ReceiveMessageServer(void)
 	TEST_ASSERT_EQUAL_STRING("Probe of reception message", rxData);
 	TEST_ASSERT_EQUAL_UINT32(26, rxLength);
 }
+
+/**
+ * @brief Unit test of
+ *
+ * Close conection client
+ */
+void test_Close_connection_client(void)
+{
+	transaction_t sequence[] = {
+		{.command = "AT+CIPCLOSE\r\n", .result = 0, .response = "OK\r\n"}
+	};
+
+	transactions = sequence;
+	totalTransaction = 1;
+
+	TEST_ASSERT_EQUAL(ESP8266_OK, ESP8266_ConnectionClose());
+}
+

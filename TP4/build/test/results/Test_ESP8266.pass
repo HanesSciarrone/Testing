@@ -4,26 +4,30 @@
   :file: Test_ESP8266.c
 :successes:
 - :test: test_Config_Init
-  :line: 178
+  :line: 174
   :message: ''
   :unity_test_time: 0
-- :test: test_ConnectionWifi
-  :line: 197
+- :test: test_Connection_Wifi_and_server
+  :line: 193
   :message: ''
   :unity_test_time: 0
-- :test: test_SendMessageServer
-  :line: 215
+- :test: test_Send_message_to_server
+  :line: 211
   :message: ''
   :unity_test_time: 0
-- :test: test_ReceiveMessageServer
-  :line: 233
+- :test: test_Receive_message_from_server
+  :line: 229
+  :message: ''
+  :unity_test_time: 0
+- :test: test_Close_connection_client
+  :line: 249
   :message: ''
   :unity_test_time: 0
 :failures: []
 :ignores: []
 :counts:
-  :total: 4
-  :passed: 4
+  :total: 5
+  :passed: 5
   :failed: 0
   :ignored: 0
 :stdout:
@@ -41,4 +45,6 @@
 - ''
 - Probe ceedling with driver
 - " "
-:time: 0.2921875620013452
+- AT+CIPCLOSE
+- ''
+:time: 0.32492267999987234

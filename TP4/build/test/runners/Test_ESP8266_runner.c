@@ -11,9 +11,10 @@ char* GlobalOrderError;
 extern void setUp(void);
 extern void tearDown(void);
 extern void test_Config_Init(void);
-extern void test_ConnectionWifi(void);
-extern void test_SendMessageServer(void);
-extern void test_ReceiveMessageServer(void);
+extern void test_Connection_Wifi_and_server(void);
+extern void test_Send_message_to_server(void);
+extern void test_Receive_message_from_server(void);
+extern void test_Close_connection_client(void);
 
 
 /*=======Mock Management=====*/
@@ -81,10 +82,11 @@ static void run_test(UnityTestFunction func, const char* name, int line_num)
 int main(void)
 {
   UnityBegin("Test_ESP8266.c");
-  run_test(test_Config_Init, "test_Config_Init", 178);
-  run_test(test_ConnectionWifi, "test_ConnectionWifi", 197);
-  run_test(test_SendMessageServer, "test_SendMessageServer", 215);
-  run_test(test_ReceiveMessageServer, "test_ReceiveMessageServer", 233);
+  run_test(test_Config_Init, "test_Config_Init", 174);
+  run_test(test_Connection_Wifi_and_server, "test_Connection_Wifi_and_server", 193);
+  run_test(test_Send_message_to_server, "test_Send_message_to_server", 211);
+  run_test(test_Receive_message_from_server, "test_Receive_message_from_server", 229);
+  run_test(test_Close_connection_client, "test_Close_connection_client", 249);
 
   return UnityEnd();
 }

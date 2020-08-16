@@ -9,14 +9,6 @@
 
 
 
-
-
-
-
-
-
-
-
 uint32_t rxLength = 0;
 
 uint8_t rxData[50];
@@ -77,7 +69,7 @@ int8_t MockSend(const uint8_t *data, uint32_t length)
 
   printf("%s\r\n", transactions[actual].command);
 
-  UnityAssertEqualMemory(( const void*)((transactions[actual].command)), ( const void*)((data)), (UNITY_UINT32)((length)), 1, ((mensaje)), (UNITY_UINT)(51), UNITY_ARRAY_TO_ARRAY);
+  UnityAssertEqualMemory(( const void*)((transactions[actual].command)), ( const void*)((data)), (UNITY_UINT32)((length)), 1, ((mensaje)), (UNITY_UINT)(47), UNITY_ARRAY_TO_ARRAY);
 
 
 
@@ -339,7 +331,7 @@ void test_Config_Init(void)
 
 ((void *)0)
 
-), (UNITY_UINT)(189), UNITY_DISPLAY_STYLE_INT);
+), (UNITY_UINT)(185), UNITY_DISPLAY_STYLE_INT);
 
 }
 
@@ -355,7 +347,7 @@ void test_Config_Init(void)
 
 
 
-void test_ConnectionWifi(void)
+void test_Connection_Wifi_and_server(void)
 
 {
 
@@ -379,7 +371,7 @@ void test_ConnectionWifi(void)
 
 ((void *)0)
 
-), (UNITY_UINT)(207), UNITY_DISPLAY_STYLE_INT);
+), (UNITY_UINT)(203), UNITY_DISPLAY_STYLE_INT);
 
 }
 
@@ -395,7 +387,7 @@ void test_ConnectionWifi(void)
 
 
 
-void test_SendMessageServer(void)
+void test_Send_message_to_server(void)
 
 {
 
@@ -419,7 +411,7 @@ void test_SendMessageServer(void)
 
 ((void *)0)
 
-), (UNITY_UINT)(225), UNITY_DISPLAY_STYLE_INT);
+), (UNITY_UINT)(221), UNITY_DISPLAY_STYLE_INT);
 
 }
 
@@ -435,7 +427,7 @@ void test_SendMessageServer(void)
 
 
 
-void test_ReceiveMessageServer(void)
+void test_Receive_message_from_server(void)
 
 {
 
@@ -459,18 +451,56 @@ void test_ReceiveMessageServer(void)
 
 ((void *)0)
 
-), (UNITY_UINT)(243), UNITY_DISPLAY_STYLE_INT);
+), (UNITY_UINT)(239), UNITY_DISPLAY_STYLE_INT);
 
  UnityAssertEqualString((const char*)(("Probe of reception message")), (const char*)((rxData)), (
 
 ((void *)0)
 
-), (UNITY_UINT)(244));
+), (UNITY_UINT)(240));
 
  UnityAssertEqualNumber((UNITY_INT)(UNITY_UINT32)((26)), (UNITY_INT)(UNITY_UINT32)((rxLength)), (
 
 ((void *)0)
 
-), (UNITY_UINT)(245), UNITY_DISPLAY_STYLE_UINT32);
+), (UNITY_UINT)(241), UNITY_DISPLAY_STYLE_UINT32);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void test_Close_connection_client(void)
+
+{
+
+ transaction_t sequence[] = {
+
+  {.command = "AT+CIPCLOSE\r\n", .result = 0, .response = "OK\r\n"}
+
+ };
+
+
+
+ transactions = sequence;
+
+ totalTransaction = 1;
+
+
+
+ UnityAssertEqualNumber((UNITY_INT)((ESP8266_OK)), (UNITY_INT)((ESP8266_ConnectionClose())), (
+
+((void *)0)
+
+), (UNITY_UINT)(258), UNITY_DISPLAY_STYLE_INT);
 
 }
