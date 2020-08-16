@@ -1,0 +1,50 @@
+---
+:source:
+  :path: test
+  :file: Test_ESP8266.c
+:successes:
+- :test: test_Config_Init
+  :line: 174
+  :message: ''
+  :unity_test_time: 0
+- :test: test_Connection_Wifi_and_server
+  :line: 193
+  :message: ''
+  :unity_test_time: 0
+- :test: test_Send_message_to_server
+  :line: 211
+  :message: ''
+  :unity_test_time: 0
+- :test: test_Receive_message_from_server
+  :line: 229
+  :message: ''
+  :unity_test_time: 0
+- :test: test_Close_connection_client
+  :line: 249
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 5
+  :passed: 5
+  :failed: 0
+  :ignored: 0
+:stdout:
+- ATE0
+- ''
+- AT+CWMODE=1
+- ''
+- AT+CIPMUX=0
+- ''
+- AT+CWJAP_CUR="Name network","Password network"
+- ''
+- AT+CIPSTART="TCP","mqtt.eclipse.org",1883
+- ''
+- AT+CIPSEND=26
+- ''
+- Probe ceedling with driver
+- " "
+- AT+CIPCLOSE
+- ''
+:time: 0.32492267999987234
